@@ -1,0 +1,8 @@
+opencv-python
+numpy
+pydantic
+pydantic-settings
+fastapi
+uvicorn
+ultralytics
+lap

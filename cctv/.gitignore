@@ -1,7 +1,7 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
-*.class
+*$py.class
 
 # Virtual Environment
 venv/
@@ -23,6 +23,3 @@ yolov8n.pt
 
 # Logs & outputs
 *.log
-
-# Local database
-resqroute.db

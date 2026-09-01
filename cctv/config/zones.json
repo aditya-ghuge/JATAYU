@@ -1,0 +1,24 @@
+[
+    {
+        "zone_id": "ZONE_LEFT",
+        "name": "Left Side",
+        "capacity": 5,
+        "polygon": [
+            [0, 0],
+            [640, 0],
+            [640, 2000],
+            [0, 2000]
+        ]
+    },
+    {
+        "zone_id": "ZONE_RIGHT",
+        "name": "Right Side",
+        "capacity": 5,
+        "polygon": [
+            [640, 0],
+            [4000, 0],
+            [4000, 2000],
+            [640, 2000]
+        ]
+    }
+]
