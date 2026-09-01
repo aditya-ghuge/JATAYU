@@ -33,7 +33,7 @@ def main():
 
     print("Starting API Server...")
     api_thread = threading.Thread(
-        target=run_server, kwargs={"host": "0.0.0.0", "port": 8000}, daemon=True
+        target=run_server, kwargs={"host": "0.0.0.0", "port": 8001}, daemon=True
     )
     api_thread.start()
 
