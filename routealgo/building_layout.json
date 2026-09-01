@@ -1,0 +1,139 @@
+{
+  "name": "ResQRoute AI Demo Complex",
+  "nodes": [
+    {
+      "id": "R1",
+      "name": "Main Conference Room R1",
+      "zone_type": "room",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 50,
+      "floor": 1,
+      "coordinates": [0.0, 4.0]
+    },
+    {
+      "id": "R2",
+      "name": "Hardware Lab R2",
+      "zone_type": "room",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 30,
+      "floor": 1,
+      "coordinates": [0.0, 3.0]
+    },
+    {
+      "id": "R3",
+      "name": "Executive Office R3",
+      "zone_type": "room",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 20,
+      "floor": 1,
+      "coordinates": [0.0, 2.0]
+    },
+    {
+      "id": "R4",
+      "name": "Server Room R4",
+      "zone_type": "room",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 15,
+      "floor": 1,
+      "coordinates": [0.0, 1.0]
+    },
+    {
+      "id": "R5",
+      "name": "Storage & Utility R5",
+      "zone_type": "room",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 20,
+      "floor": 1,
+      "coordinates": [0.0, 0.0]
+    },
+    {
+      "id": "C1",
+      "name": "North Main Corridor C1",
+      "zone_type": "corridor",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 100,
+      "floor": 1,
+      "coordinates": [2.0, 3.5]
+    },
+    {
+      "id": "C2",
+      "name": "East Wing Hallway C2",
+      "zone_type": "corridor",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 100,
+      "floor": 1,
+      "coordinates": [4.0, 3.5]
+    },
+    {
+      "id": "C3",
+      "name": "South Main Corridor C3",
+      "zone_type": "corridor",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 100,
+      "floor": 1,
+      "coordinates": [2.0, 0.5]
+    },
+    {
+      "id": "C4",
+      "name": "West Wing Hallway C4",
+      "zone_type": "corridor",
+      "is_exit": false,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 100,
+      "floor": 1,
+      "coordinates": [4.0, 0.5]
+    },
+    {
+      "id": "EXIT1",
+      "name": "Emergency Exit 1 (East Wing)",
+      "zone_type": "exit",
+      "is_exit": true,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 500,
+      "floor": 1,
+      "coordinates": [6.0, 3.5]
+    },
+    {
+      "id": "EXIT2",
+      "name": "Emergency Exit 2 (West Wing)",
+      "zone_type": "exit",
+      "is_exit": true,
+      "is_available": true,
+      "crowd_count": 0.0,
+      "capacity": 500,
+      "floor": 1,
+      "coordinates": [6.0, 0.5]
+    }
+  ],
+  "edges": [
+    {"source": "R1", "target": "C1", "distance": 5.0, "bidirectional": true, "is_blocked": false},
+    {"source": "R2", "target": "C1", "distance": 6.0, "bidirectional": true, "is_blocked": false},
+    {"source": "R3", "target": "C1", "distance": 7.0, "bidirectional": true, "is_blocked": false},
+    {"source": "R4", "target": "C3", "distance": 5.0, "bidirectional": true, "is_blocked": false},
+    {"source": "R5", "target": "C3", "distance": 6.0, "bidirectional": true, "is_blocked": false},
+    {"source": "C1", "target": "C2", "distance": 8.0, "bidirectional": true, "is_blocked": false},
+    {"source": "C1", "target": "C3", "distance": 10.0, "bidirectional": true, "is_blocked": false},
+    {"source": "C2", "target": "C4", "distance": 12.0, "bidirectional": true, "is_blocked": false},
+    {"source": "C3", "target": "C4", "distance": 8.0, "bidirectional": true, "is_blocked": false},
+    {"source": "C2", "target": "EXIT1", "distance": 6.0, "bidirectional": true, "is_blocked": false},
+    {"source": "C4", "target": "EXIT2", "distance": 7.0, "bidirectional": true, "is_blocked": false}
+  ]
+}
