@@ -239,3 +239,14 @@ def building_status(
         "critical": red,
         "unknown": unknown
     }
+    # -------------------------
+# CCTV State
+# -------------------------
+@app.post("/cctv-state")
+def update_cctv_state(data: dict):
+    return {
+        "message": "CCTV state received successfully",
+        "camera_id": data.get("camera_id"),
+        "hazards": data.get("hazards", []),
+        "population": data.get("population", {})
+    }
