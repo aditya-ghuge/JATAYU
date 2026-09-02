@@ -1,6 +1,7 @@
 # pyrefly: ignore [missing-import]
 import cv2
 import sys
+import requests
 from config import settings
 from video import get_video_source
 from detection import YOLODetector
@@ -101,7 +102,37 @@ def main():
                         }
                     )
 
-            store.update_state(state_json)
+                        store.update_state(state_json)
+
+            # Send crowd data to RouteAlgo
+            zone_map = {
+                "ZONE_LEFT": "C1",
+                "ZONE_RIGHT": "C3"
+            }
+
+            for zone in crowd_metrics.get("zones", []):
+                try:
+                    requests.post(
+                        "http://127.0.0.1:8000/crowd",
+                        json={
+                            "zone_id": zone_map.get(zone["name"], "C1"),
+                            "crowd_count": zone["people"]
+                        },
+                        timeout=1
+                    )
+                except Exception:
+                    pass
+
+            # Generate Entry Events
+            for alert in evac_metrics.get("alerts", []):
+                event_json = {
+                    "event_id": f"EVT-{str(uuid.uuid4())[:8]}",
+                    "timestamp": timestamp,
+                    "type": "UNSAFE_ENTRY",
+                    "priority": "CRITICAL",
+                    "data": {"message": alert},
+                }
+                store.add_event(event_json)
 
             # Generate Entry Events
             for alert in evac_metrics.get("alerts", []):
