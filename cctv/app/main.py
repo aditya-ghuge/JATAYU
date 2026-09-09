@@ -10,6 +10,12 @@ from zones import ZoneManager
 from crowd import CrowdEngine
 from evacuation import EvacuationEngine
 from hazards import HazardEngine
+from occupancy import (
+    BoundaryCrossingEvent,
+    BuildingConfig,
+    BuildingOccupancyEngine,
+    ZoneTransitionEvent,
+)
 from api import store, run_server
 import threading
 import datetime
@@ -31,6 +37,10 @@ def main():
     crowd_engine = CrowdEngine(zone_manager)
     evac_engine = EvacuationEngine("config/exits.json")
     hazard_engine = HazardEngine(zone_manager, confirm_threshold=15, lose_threshold=10)
+    building_occupancy = BuildingOccupancyEngine(
+        BuildingConfig.from_json("config/cameras.json")
+    )
+    store.set_emergency_start_handler(building_occupancy.start_emergency)
 
     print("Starting API Server...")
     api_thread = threading.Thread(
@@ -73,9 +83,34 @@ def main():
             tracked_people = tracker.update(person_detections)
             hazard_states = hazard_engine.update(detections)
 
-            # Compute Crowd Metrics & Evacuation
+            # Zone assignment remains camera-local. Emit a fact only when it changes;
+            # the central engine never assumes ByteTrack IDs survive across cameras.
+            for person in tracked_people:
+                previous_zone = person.current_zone
+                person.current_zone = zone_manager.get_zone_for_point(person.history[-1])
+                if person.current_zone != previous_zone:
+                    zone_event = ZoneTransitionEvent(
+                        camera_id="CAM-01",
+                        track_id=person.track_id,
+                        from_zone_id=previous_zone,
+                        to_zone_id=person.current_zone,
+                    )
+                    building_occupancy.consume(zone_event)
+                    store.add_event(zone_event.to_dict())
+
+            # Compute existing camera metrics and publish boundary crossings to the
+            # building-wide count. The legacy evacuation metrics are retained for UI.
             crowd_metrics = crowd_engine.compute_metrics(tracked_people)
             evac_metrics = evac_engine.update(tracked_people)
+            for crossing in evac_metrics.get("crossings", []):
+                boundary_event = BoundaryCrossingEvent(
+                    camera_id="CAM-01",
+                    track_id=crossing["track_id"],
+                    boundary_id=crossing["exit_id"],
+                    direction=crossing["direction"],
+                )
+                if building_occupancy.consume(boundary_event):
+                    store.add_event(boundary_event.to_dict())
 
             # Format and Push State
             timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -88,6 +123,7 @@ def main():
                     "evacuated": evac_metrics.get("evacuated", 0),
                     "entered": evac_metrics.get("entered", 0),
                     "zones": crowd_metrics.get("zones", []),
+                    "building": building_occupancy.snapshot(),
                 },
                 "hazards": [],
             }
@@ -102,7 +138,7 @@ def main():
                         }
                     )
 
-                        store.update_state(state_json)
+            store.update_state(state_json)
 
             # Send crowd data to RouteAlgo
             zone_map = {
@@ -122,17 +158,6 @@ def main():
                     )
                 except Exception:
                     pass
-
-            # Generate Entry Events
-            for alert in evac_metrics.get("alerts", []):
-                event_json = {
-                    "event_id": f"EVT-{str(uuid.uuid4())[:8]}",
-                    "timestamp": timestamp,
-                    "type": "UNSAFE_ENTRY",
-                    "priority": "CRITICAL",
-                    "data": {"message": alert},
-                }
-                store.add_event(event_json)
 
             # Generate Entry Events
             for alert in evac_metrics.get("alerts", []):
@@ -176,9 +201,6 @@ def main():
                 x1, y1, x2, y2 = person.bbox
                 track_id = person.track_id
 
-                # Assign Zone based on latest center point
-                latest_center = person.history[-1]
-                person.current_zone = zone_manager.get_zone_for_point(latest_center)
                 zone_label = person.current_zone if person.current_zone else "NO_ZONE"
 
                 # Draw bounding box

@@ -1,5 +1,5 @@
 import threading
-from typing import Dict, List, Any
+from typing import Callable, Dict, List, Any
 
 
 class StateStore:
@@ -8,6 +8,7 @@ class StateStore:
         self.latest_state: Dict[str, Any] = {}
         self.events: List[Dict[str, Any]] = []
         self.latest_frame: bytes = None
+        self._emergency_start_handler: Callable[[], Dict[str, Any]] | None = None
 
     def update_state(self, state: Dict[str, Any]):
         with self.lock:
@@ -35,6 +36,18 @@ class StateStore:
     def get_frame(self) -> bytes:
         with self.lock:
             return self.latest_frame
+
+    def set_emergency_start_handler(self, handler: Callable[[], Dict[str, Any]]):
+        """Register the live occupancy engine after the video pipeline starts."""
+        with self.lock:
+            self._emergency_start_handler = handler
+
+    def start_emergency(self) -> Dict[str, Any]:
+        with self.lock:
+            handler = self._emergency_start_handler
+        if handler is None:
+            raise RuntimeError("Occupancy engine is not running")
+        return handler()
 
 
 # Global Singleton

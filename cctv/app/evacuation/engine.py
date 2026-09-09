@@ -42,6 +42,7 @@ class EvacuationEngine:
         # Keep track of which track IDs have already crossed an exit
         self.evacuated_ids: Set[int] = set()
         self.entered_ids: Set[int] = set()
+        self.crossed_directions: Set[Tuple[int, str, str]] = set()
         self.initial_population = 0
 
     def _load_exits(self, config_path: str):
@@ -62,13 +63,12 @@ class EvacuationEngine:
             self.initial_population = 10  # Hardcoded for demo purposes
 
         alerts = []
+        crossings = []
 
         for person in tracked_people:
             # We need at least 2 points to form a movement line
             if (
                 len(person.history) >= 2
-                and person.track_id not in self.evacuated_ids
-                and person.track_id not in self.entered_ids
             ):
                 p1 = person.history[-2]
                 p2 = person.history[-1]
@@ -81,6 +81,14 @@ class EvacuationEngine:
 
                     if lines_intersect(p1, p2, e1, e2):
                         direction = get_direction(p1, p2, e1, e2)
+                        crossing_key = (
+                            person.track_id,
+                            ex.get("exit_id", ex["name"]),
+                            direction,
+                        )
+                        if crossing_key in self.crossed_directions:
+                            continue
+                        self.crossed_directions.add(crossing_key)
                         if direction == "OUTBOUND":
                             print(
                                 f"Person #{person.track_id} crossed {ex['name']} OUTBOUND!"
@@ -92,6 +100,13 @@ class EvacuationEngine:
                             )
                             self.entered_ids.add(person.track_id)
                             alerts.append(f"Person #{person.track_id} ENTERED!")
+                        crossings.append(
+                            {
+                                "track_id": person.track_id,
+                                "exit_id": ex.get("exit_id", ex["name"]),
+                                "direction": direction,
+                            }
+                        )
                         break
 
         evacuated_count = len(self.evacuated_ids)
@@ -108,4 +123,5 @@ class EvacuationEngine:
             "entered": entered_count,
             "evacuation_percentage": round(evac_percent, 1),
             "alerts": alerts,
+            "crossings": crossings,
         }

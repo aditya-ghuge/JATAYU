@@ -1,6 +1,7 @@
 import uvicorn
 import time
 from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from .store import store
 
@@ -15,6 +16,15 @@ def get_state():
 @app.get("/events")
 def get_events():
     return {"events": store.get_events()}
+
+
+@app.post("/emergency/start")
+def start_emergency():
+    """Freeze the live occupancy as the evacuation accountability baseline."""
+    try:
+        return {"building": store.start_emergency()}
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
 
 
 def generate_frames():

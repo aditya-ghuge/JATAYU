@@ -9,6 +9,9 @@ class Zone(BaseModel):
     name: str
     capacity: int
     polygon: List[Tuple[int, int]]
+    # Optional building metadata.  Existing camera-local zone files remain valid.
+    zone_type: str = "room"
+    floor: str | None = None
 
     @property
     def np_polygon(self):

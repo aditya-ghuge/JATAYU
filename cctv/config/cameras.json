@@ -1,0 +1,9 @@
+{
+  "cameras": [
+    {
+      "camera_id": "CAM-01",
+      "name": "Primary CCTV Feed",
+      "role": "entrance_exit"
+    }
+  ]
+}

@@ -3,6 +3,8 @@
         "zone_id": "ZONE_LEFT",
         "name": "Left Side",
         "capacity": 5,
+        "zone_type": "room",
+        "floor": "F1",
         "polygon": [
             [0, 0],
             [640, 0],
@@ -14,6 +16,8 @@
         "zone_id": "ZONE_RIGHT",
         "name": "Right Side",
         "capacity": 5,
+        "zone_type": "corridor",
+        "floor": "F1",
         "polygon": [
             [640, 0],
             [4000, 0],
